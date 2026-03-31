@@ -1,3 +1,4 @@
+```mermaid
 sequenceDiagram
     participant browser
     participant server
@@ -6,6 +7,7 @@ sequenceDiagram
     activate server
     server-->>browser: [{ "content": "HTML is not easy", "date": "2026-3-31" }, ... ]
     deactivate server
+    
     Note right of browser: The browser send POST request of the content to the server address new_note which triggers URL redirect with new GET request
 
     browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/notes
@@ -31,3 +33,4 @@ sequenceDiagram
     deactivate server
 
     Note right of browser: The browser executes the callback function that renders the notes
+```
