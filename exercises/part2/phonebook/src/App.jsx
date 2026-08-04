@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import personService from './services/persons'
 import Filter from './components/Filter'
-import Persons from './components/Persons'
+import Person from './components/Person'
 import PersonForm from './components/PersonForm'
 
 const App = () => {
@@ -11,10 +11,10 @@ const App = () => {
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    axios
-    .get('http://localhost:3001/persons')
-    .then(response => {
-      setPersons(response.data)
+    personService
+    .getAll()
+    .then(initialPersons => {
+      setPersons(initialPersons)
     })
   }, [])
 
@@ -22,7 +22,6 @@ const App = () => {
     event.preventDefault()
 
     const newEntry = {
-      id: persons.length + 1,
       name: newName,
       number: newNumber
     }
@@ -36,7 +35,25 @@ const App = () => {
     } else if (numberFound) {
       alert(`${numberFound.number} is already in the phonebook`)
     } else {
-      setPersons(persons.concat(newEntry))
+      personService
+        .create(newEntry)
+        .then(returnedEntry => {
+          setPersons(persons.concat(returnedEntry))
+          setNewName('')
+          setNewNumber('')
+        })
+    }
+  }
+
+  const removePerson = (id) => {
+    const personToDelete = persons.find(person => person.id === id)
+
+    if (confirm("Are you sure you want to remove the person from phonebook?")) {
+      personService
+      .remove(id)
+      .then(returnedData =>
+        setPersons(persons.filter(person => person.id !== id))
+      )
     }
   }
 
@@ -50,7 +67,6 @@ const App = () => {
 
   const handleSearchChange = (event) => {
     setSearch(event.target.value)
-
   }
 
   const personsToShow = persons.filter(person => person.name.toLowerCase().includes(search.toLowerCase()))
@@ -62,7 +78,13 @@ const App = () => {
       <h2>add a new</h2>
       <PersonForm addEntry={addEntry} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} />
       <h2>Numbers</h2>
-      <Persons personsToShow={personsToShow} />
+      {personsToShow.map(person =>
+        <Person 
+          key={person.id}
+          person={person}
+          removePerson={() => removePerson(person.id)}
+        />
+      )}
     </div>
   )
 }
