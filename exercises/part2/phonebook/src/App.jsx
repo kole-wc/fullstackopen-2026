@@ -29,11 +29,40 @@ const App = () => {
     // find the person from the input that exists in the phonebook
     const personFound = persons.find(person => person.name === newName)
     const numberFound = persons.find(person => person.number === newNumber)
-    // trigger alert message if person/number is found, otherwise add the person to phonebook
+
+    // trigger alert message if person/number is found then update, otherwise add the person to phonebook
     if (personFound) {
-      alert(`${personFound.name} is already in the phonebook`)
+      if (confirm(`${personFound.name} is already added to the phonebook, replace the old number with a new one?`)) {
+        const updatedPerson = { ...personFound, number: newNumber}
+
+        personService
+        .update(personFound.id, updatedPerson)
+        .then(returnedUpdatedPerson => {
+          setPersons(persons.map(person => person.id === personFound.id ? returnedUpdatedPerson : person))
+          setNewName('')
+          setNewNumber('')
+        })
+        .catch(error => {
+          alert(`${personFound.name} was already deleted from the server`)
+          setPersons(persons.filter(person => person.id !== personFound.id))
+        })
+      }
     } else if (numberFound) {
-      alert(`${numberFound.number} is already in the phonebook`)
+      if (confirm(`${numberFound.number} is already added to the phonebook, would you want to rename the entry?`)) {
+        const updatedPerson = { ...numberFound, name: newName}
+
+        personService
+        .update(numberFound.id, updatedPerson)
+        .then(returnedUpdatedPerson => {
+          setPersons(persons.map(person => person.id === numberFound.id ? returnedUpdatedPerson : person))
+          setNewName('')
+          setNewNumber('')
+        })
+        .catch(error => {
+          alert(`${numberFound.number} was already deleted from the server`)
+          setPersons(persons.filter(person => person.id !== numberFound.id))
+        })
+      }
     } else {
       personService
         .create(newEntry)
