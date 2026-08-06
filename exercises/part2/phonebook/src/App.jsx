@@ -3,12 +3,15 @@ import personService from './services/persons'
 import Filter from './components/Filter'
 import Person from './components/Person'
 import PersonForm from './components/PersonForm'
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [search, setSearch] = useState('')
+  const [message, setMessage] = useState(null)
+  const [isError, setIsError] = useState(null)
 
   useEffect(() => {
     personService
@@ -43,7 +46,11 @@ const App = () => {
           setNewNumber('')
         })
         .catch(error => {
-          alert(`${personFound.name} was already deleted from the server`)
+          setIsError(true)
+          setMessage(`${personFound.name} was already deleted from the server`)
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
           setPersons(persons.filter(person => person.id !== personFound.id))
         })
       }
@@ -59,7 +66,10 @@ const App = () => {
           setNewNumber('')
         })
         .catch(error => {
-          alert(`${numberFound.number} was already deleted from the server`)
+          setMessage(`${numberFound.number} was already deleted from the server`)
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
           setPersons(persons.filter(person => person.id !== numberFound.id))
         })
       }
@@ -68,15 +78,19 @@ const App = () => {
         .create(newEntry)
         .then(returnedEntry => {
           setPersons(persons.concat(returnedEntry))
+          setIsError(false)
           setNewName('')
           setNewNumber('')
+          setMessage(`Added ${returnedEntry.name} to the phonebook`)
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
         })
     }
   }
 
   const removePerson = (id) => {
     const personToDelete = persons.find(person => person.id === id)
-
     if (confirm("Are you sure you want to remove the person from phonebook?")) {
       personService
       .remove(id)
@@ -103,9 +117,16 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification isError={isError} message={message}/>
       <Filter handleSearchChange={handleSearchChange} />
       <h2>add a new</h2>
-      <PersonForm addEntry={addEntry} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} />
+      <PersonForm 
+        addEntry={addEntry}
+        handleNameChange={handleNameChange}
+        handleNumberChange={handleNumberChange} 
+        newName={newName}
+        newNumber={newNumber}
+      />
       <h2>Numbers</h2>
       {personsToShow.map(person =>
         <Person 
