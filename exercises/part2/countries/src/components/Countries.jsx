@@ -1,5 +1,19 @@
+import { useState } from 'react'
+import Country from './Country'
+
 const Countries = ({ countries }) => {
-  console.log('Countries component rendered')
+  const [selected, setSelected] = useState([])
+
+  const toggleSelected = (country) => {
+    const isSelected = selected.some(select => select.cca3 === country.cca3)
+
+    if (isSelected) {
+      setSelected(selected.filter(select => select.cca3 !== country.cca3))
+    } else {
+      setSelected(selected.concat(country))
+    }
+  }
+
   if (countries.length > 10) {
     return (
       <div>
@@ -8,27 +22,22 @@ const Countries = ({ countries }) => {
     )
   }
   else if (countries.length === 1) {
-    const country = countries[0]
     return (
-      <div>
-        <h1>{country.name.common}</h1>
-        <p>Capital {country.capital[0]}</p>
-        <p>Area {country.area}</p>
-        <h2>Languages</h2>
-        <ul>
-          {Object.values(country.languages).map(lang => 
-            <li key={lang}>{lang}</li>
-          )}
-        </ul>
-        <img src={country.flags.png} alt={country.flags.alt} />
-      </div>
+      <Country country={countries[0]} />
     )
   }
   else {
-    console.log(countries)
     return (
       <div>
-        {countries.map(country => <p key={country.cca3}>{country.name.common}</p>)}
+        {countries.map(country => {
+          const isSelected = selected.some(select => select.cca3 === country.cca3)
+          return (
+            <div key={country.cca3}>
+              {country.name.common}<button onClick={() => toggleSelected(country)}>{isSelected ? 'hide' : 'show'}</button>
+              {isSelected && <Country country={country} />}
+            </div>
+          )
+        })}
       </div>
     )
   }
