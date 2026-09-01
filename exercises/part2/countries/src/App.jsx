@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import countryService from './services/countries'
+import weatherService from './services/weather'
 import Countries from './components/Countries'
 
 const App = () => {
@@ -13,7 +14,7 @@ const App = () => {
         setCountries(returnedCountries)
       })
   }, [])
-
+  
   const handleChange = (event) => {
     setSearch(event.target.value)
   }
