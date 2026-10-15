@@ -1,7 +1,11 @@
 const express = require('express')
 const app = express()
+const morgan = require('morgan')
+
+morgan.token('body', function (request) { return JSON.stringify(request.body) })
 
 app.use(express.json())
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
 let persons = [
     { 
@@ -61,9 +65,7 @@ app.post('/api/persons', (request, response) => {
   const body = request.body
   const id = String(Math.floor(Math.random() * 1000000))
 
-  const format = (person) => {
-    person.trim().toLowerCase()
-  }
+  const format = (person) => person.trim().toLowerCase()
 
   if (!body.name?.trim() || !body.number?.trim()) {
     return response.status(400).json({
